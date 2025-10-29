@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.95;
+        }
+
+        /* Main Card */
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        /* Summary Section */
+        .summary-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            color: white;
+        }
+
+        .summary-card.total {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .summary-card.count {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.3);
+        }
+
+        .summary-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .summary-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        /* Input Section */
+        .input-section {
+            background: #f9f9f9;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 2px solid #f0f0f0;
+        }
+
+        .input-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        input {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input[type="text"]::placeholder,
+        input[type="number"]::placeholder {
+            color: #999;
+        }
+
+        button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Expenses List */
+        .expenses-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 1.1rem;
+        }
+
+        /* Expense Cards */
+        .expenses-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .expense-card {
+            background: white;
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            padding: 15px;
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 15px;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .expense-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateX(5px);
+        }
+
+        .expense-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .expense-description {
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .expense-date {
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        .expense-amount {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #667eea;
+            min-width: 100px;
+            text-align: right;
+        }
+
+        .expense-delete {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 8px 15px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .expense-delete:hover {
+            transform: scale(1.05);
+            box-shadow: 0 3px 10px rgba(245, 87, 108, 0.3);
+        }
+
+        .expense-delete:active {
+            transform: scale(0.95);
+        }
+
+        /* Category Badges */
+        .category-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-right: 8px;
+        }
+
+        .category-food { background: #fff3cd; color: #856404; }
+        .category-transport { background: #d1ecf1; color: #0c5460; }
+        .category-entertainment { background: #e7d4f5; color: #5a1a82; }
+        .category-utilities { background: #d4edda; color: #155724; }
+        .category-health { background: #f8d7da; color: #721c24; }
+        .category-other { background: #e2e3e5; color: #383d41; }
+
+        /* Table View (Alternative) */
+        .table-view {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .table-view.active {
+            display: block;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        thead {
+            background: #f9f9f9;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #666;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        /* View Toggle */
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: flex-end;
+        }
+
+        .toggle-btn {
+            padding: 8px 15px;
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-box {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #999;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-box.highest .stat-label { color: #f5576c; }
+        .stat-box.highest { border-left-color: #f5576c; }
+        .stat-box.highest .stat-number { color: #f5576c; }
+
+        .stat-box.average { border-left-color: #ffd93d; }
+        .stat-box.average .stat-label { color: #d4a500; }
+        .stat-box.average .stat-number { color: #ffd93d; }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .btn-export {
+            background: #51cf66;
+            padding: 10px 20px;
+            font-size: 0.85rem;
+        }
+
+        .btn-export:hover {
+            box-shadow: 0 5px 15px rgba(81, 207, 102, 0.3);
+        }
+
+        .btn-clear {
+            background: #f5576c;
+            padding: 10px 20px;
+            font-size: 0.85rem;
+        }
+
+        .btn-clear:hover {
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .summary-section {
+                grid-template-columns: 1fr;
+            }
+
+            .input-group {
+                grid-template-columns: 1fr;
+            }
+
+            .expense-card {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .expense-amount {
+                text-align: left;
+            }
+
+            .quick-stats {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            animation: slideInRight 0.3s ease-out;
+            z-index: 1000;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .notification.success {
+            border-left: 4px solid #51cf66;
+            color: #155724;
+        }
+
+        .notification.error {
+            border-left: 4px solid #f5576c;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 Expense Tracker</h1>
+            <p class="subtitle">Track your daily expenses and manage your budget</p>
+        </header>
+
+        <div class="card">
+            <!-- Summary Section -->
+            <div class="summary-section">
+                <div class="summary-card total">
+                    <div class="summary-icon">💵</div>
+                    <div class="summary-label">Total Spent</div>
+                    <div class="summary-value" id="totalAmount">$0.00</div>
+                </div>
+                <div class="summary-card count">
+                    <div class="summary-icon">📋</div>
+                    <div class="summary-label">Total Expenses</div>
+                    <div class="summary-value" id="totalCount">0</div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="stat-box">
+                    <div class="stat-label">Average</div>
+                    <div class="stat-number" id="averageAmount">$0.00</div>
+                </div>
+                <div class="stat-box highest">
+                    <div class="stat-label">Highest</div>
+                    <div class="stat-number" id="highestAmount">$0.00</div>
+                </div>
+                <div class="stat-box average">
+                    <div class="stat-label">Lowest</div>
+                    <div class="stat-number" id="lowestAmount">$0.00</div>
+                </div>
+            </div>
+
+            <!-- Input Section -->
+            <div class="input-section">
+                <div class="input-title">➕ Add New Expense</div>
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        id="description" 
+                        placeholder="What did you spend on?"
+                        oninput="validateInput()"
+                    >
+                    <input 
+                        type="number" 
+                        id="amount" 
+                        placeholder="Amount ($)"
+                        min="0"
+                        step="0.01"
+                        oninput="validateInput()"
+                    >
+                    <button onclick="addExpense()" id="addBtn">➕ Add</button>
+                </div>
+            </div>
+
+            <!-- View Toggle -->
+            <div class="view-toggle">
+                <button class="toggle-btn active" onclick="switchView('cards')">📇 Cards</button>
+                <button class="toggle-btn" onclick="switchView('table')">📊 Table</button>
+            </div>
+
+            <!-- Expenses Section (Cards View) -->
+            <div class="expenses-section" id="cardsView">
+                <div class="section-title">📝 Expenses</div>
+                <div id="expensesList" class="expenses-list">
+                    <div class="empty-state">
+                        <div class="empty-icon">🎯</div>
+                        <div class="empty-text">No expenses yet. Add your first expense!</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table View -->
+            <div class="table-view" id="tableView">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expensesTable">
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: #999;">No expenses yet</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn-export" onclick="exportData()">📥 Export</button>
+                <button class="btn-clear" onclick="clearAll()">🗑️ Clear All</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+
+        // Initialize
+        function init() {
+            renderExpenses();
+            updateStats();
+        }
+
+        function addExpense() {
+            const description = document.getElementById('description').value.trim();
+            const amount = parseFloat(document.getElementById('amount').value);
+
+            if (!description || !amount || amount <= 0) {
+                showNotification('Please enter valid description and amount', 'error');
+                return;
+            }
+
+            const expense = {
+                id: Date.now(),
+                description: description,
+                amount: amount,
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString()
+            };
+
+            expenses.push(expense);
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+
+            document.getElementById('description').value = '';
+            document.getElementById('amount').value = '';
+            document.getElementById('description').focus();
+
+            renderExpenses();
+            updateStats();
+            showNotification('Expense added successfully!', 'success');
+            validateInput();
+        }
+
+        function deleteExpense(id) {
+            expenses = expenses.filter(e => e.id !== id);
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+            renderExpenses();
+            updateStats();
+            showNotification('Expense deleted!', 'success');
+        }
+
+        function renderExpenses() {
+            const expensesList = document.getElementById('expensesList');
+            const expensesTable = document.getElementById('expensesTable');
+
+            if (expenses.length === 0) {
+                expensesList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🎯</div>
+                        <div class="empty-text">No expenses yet. Add your first expense!</div>
+                    </div>
+                `;
+                expensesTable.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #999;">No expenses yet</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Cards view
+            expensesList.innerHTML = expenses.map(expense => `
+                <div class="expense-card">
+                    <div class="expense-info">
+                        <div class="expense-description">${escapeHtml(expense.description)}</div>
+                        <div class="expense-date">${expense.date} at ${expense.time}</div>
+                    </div>
+                    <div class="expense-amount">$${expense.amount.toFixed(2)}</div>
+                    <button class="expense-delete" onclick="deleteExpense(${expense.id})">🗑️ Delete</button>
+                </div>
+            `).join('');
+
+            // Table view
+            expensesTable.innerHTML = expenses.map(expense => `
+                <tr>
+                    <td>${escapeHtml(expense.description)}</td>
+                    <td>$${expense.amount.toFixed(2)}</td>
+                    <td>${expense.date}</td>
+                    <td><button class="expense-delete" onclick="deleteExpense(${expense.id})">Delete</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats() {
+            if (expenses.length === 0) {
+                document.getElementById('totalAmount').textContent = '$0.00';
+                document.getElementById('totalCount').textContent = '0';
+                document.getElementById('averageAmount').textContent = '$0.00';
+                document.getElementById('highestAmount').textContent = '$0.00';
+                document.getElementById('lowestAmount').textContent = '$0.00';
+                return;
+            }
+
+            const amounts = expenses.map(e => e.amount);
+            const total = amounts.reduce((a, b) => a + b, 0);
+            const average = total / amounts.length;
+            const highest = Math.max(...amounts);
+            const lowest = Math.min(...amounts);
+
+            document.getElementById('totalAmount').textContent = '$' + total.toFixed(2);
+            document.getElementById('totalCount').textContent = expenses.length;
+            document.getElementById('averageAmount').textContent = '$' + average.toFixed(2);
+            document.getElementById('highestAmount').textContent = '$' + highest.toFixed(2);
+            document.getElementById('lowestAmount').textContent = '$' + lowest.toFixed(2);
+        }
+
+        function validateInput() {
+            const description = document.getElementById('description').value.trim();
+            const amount = parseFloat(document.getElementById('amount').value);
+            const addBtn = document.getElementById('addBtn');
+
+            if (description && amount && amount > 0) {
+                addBtn.disabled = false;
+            } else {
+                addBtn.disabled = true;
+            }
+        }
+
+        function switchView(view) {
+            const cardsView = document.getElementById('cardsView');
+            const tableView = document.getElementById('tableView');
+            const toggleBtns = document.querySelectorAll('.toggle-btn');
+
+            toggleBtns.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (view === 'cards') {
+                cardsView.style.display = 'block';
+                tableView.classList.remove('active');
+            } else {
+                cardsView.style.display = 'none';
+                tableView.classList.add('active');
+            }
+        }
+
+        function exportData() {
+            if (expenses.length === 0) {
+                showNotification('No expenses to export', 'error');
+                return;
+            }
+
+            let csv = 'Description,Amount,Date,Time\n';
+            expenses.forEach(e => {
+                csv += `"${e.description}",${e.amount},"${e.date}","${e.time}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `expenses_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+
+            showNotification('Expenses exported successfully!', 'success');
+        }
+
+        function clearAll() {
+            if (expenses.length === 0) {
+                showNotification('No expenses to clear', 'error');
+                return;
+            }
+
+            if (confirm('Are you sure you want to delete all expenses? This cannot be undone.')) {
+                expenses = [];
+                localStorage.setItem('expenses', JSON.stringify(expenses));
+                renderExpenses();
+                updateStats();
+                showNotification('All expenses cleared!', 'success');
+            }
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideInRight 0.3s ease-out reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Keyboard support
+        document.getElementById('amount').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addExpense();
+        });
+
+        document.getElementById('description').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('amount').focus();
+        });
+
+        init();
+    </script>
+</body>
+</html>
