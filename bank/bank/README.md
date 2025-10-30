@@ -1,5 +1,23 @@
 # Get started
 
+## Prerequisites
+
+Before running the application locally, make sure you have:
+
+- Java 17 or newer installed
+- Maven or use the included Maven wrapper (`mvnw`)
+- MongoDB (optional — required only if you want persisted data)
+- An API client like Postman/cURL (optional)
+
+## Example cURL command
+
+Create an account (example):
+```bash
+curl -X POST "http://localhost:8080/account/create" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Test User","initialDeposit":1000}'
+
+
 This short guide shows how to get the application running locally:
 
 1) Open PowerShell and go to the bank module folder:
