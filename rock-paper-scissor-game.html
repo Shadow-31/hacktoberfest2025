@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rock Paper Scissors</title>
+
+  <!-- using google font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body{
+      background:url("https://static.vecteezy.com/system/resources/previews/003/303/295/non_2x/mountains-background-game-vector.jpg");
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      color:#333;
+    }
+
+    h1{
+      margin-bottom:20px;
+      font-size:2.2rem;
+      font-weight:600;
+    }
+
+    .choices{
+      display:flex;
+      gap:20px;
+      margin:20px 0;
+    }
+
+    button{
+      background:white;
+      border:none;
+      border-radius:10px;
+      padding:15px 25px;
+      font-size:1rem;
+      cursor:pointer;
+      transition:all 0.2s ease-in-out;
+      box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    button:hover{
+      background:#ffeaa7;
+      transform:scale(1.05);
+    }
+
+    .result{
+      font-size:1.3rem;
+      margin-top:15px;
+      font-weight:500;
+      color:#222;
+      background:#ffffff77;
+      padding:10px 20px;
+      border-radius:10px;
+    }
+
+    footer{
+      position:absolute;
+      bottom:15px;
+      font-size:0.9rem;
+      color:#fff;
+      opacity:0.8;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Rock ✊ Paper ✋ Scissors ✌️</h1>
+  <p style="color: aliceblue;">Choose wisely!</p>
+
+  <div class="choices">
+    <button onclick="play('rock')">Rock ✊</button>
+    <button onclick="play('paper')">Paper ✋</button>
+    <button onclick="play('scissors')">Scissors ✌️</button>
+  </div>
+
+  <div class="result" id="result">Let's play!</div>
+
+
+  <script>
+    // lil fun javascript below ↓
+
+    function play(userChoice){
+      const choices = ['rock', 'paper', 'scissors'];
+      const computerChoice = choices[Math.floor(Math.random()*3)];
+      let result = '';
+
+      if(userChoice === computerChoice){
+        result = "It's a tie! 🤝";
+      } else if(
+        (userChoice==='rock' && computerChoice==='scissors') ||
+        (userChoice==='paper' && computerChoice==='rock') ||
+        (userChoice==='scissors' && computerChoice==='paper')
+      ){
+        result = `You win! 🥳 (${userChoice} beats ${computerChoice})`;
+      } else {
+        result = `You lose 😢 (${computerChoice} beats ${userChoice})`;
+      }
+
+      document.getElementById('result').textContent = result;
+    }
+  </script>
+
+</body>
+</html>
