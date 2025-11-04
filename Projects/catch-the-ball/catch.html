@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catch the Ball Game</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .game-container {
+      position: relative;
+      width: 400px;
+      height: 500px;
+      background-color: #fff;
+      border: 5px solid #ff6b6b;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    #paddle {
+      position: absolute;
+      bottom: 10px;
+      left: 170px;
+      width: 60px;
+      height: 10px;
+      background-color: #ff6b6b;
+      border-radius: 5px;
+    }
+
+    #ball {
+      position: absolute;
+      top: 0;
+      left: 200px;
+      width: 20px;
+      height: 20px;
+      background-color: #6b5b95;
+      border-radius: 50%;
+    }
+
+    #score {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-weight: 700;
+      color: #444;
+      font-size: 18px;
+    }
+
+    #gameOver {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      display: none;
+    }
+
+    #gameOver h2 {
+      color: #ff4757;
+    }
+
+    button {
+      background-color: #ff6b6b;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #ff4757;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div id="score">Score: 0</div>
+    <div id="paddle"></div>
+    <div id="ball"></div>
+    <div id="gameOver">
+      <h2>Game Over!</h2>
+      <p>Your final score: <span id="finalScore">0</span></p>
+      <button onclick="restartGame()">Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    const ball = document.getElementById("ball");
+    const paddle = document.getElementById("paddle");
+    const scoreDisplay = document.getElementById("score");
+    const gameOverScreen = document.getElementById("gameOver");
+    const finalScoreDisplay = document.getElementById("finalScore");
+
+    let ballX = 200;
+    let ballY = 0;
+    let ballSpeed = 3;
+    let ballDirX = Math.random() < 0.5 ? -2 : 2;
+
+    let paddleX = 170;
+    const paddleSpeed = 20;
+    let score = 0;
+    let gameRunning = true;
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" && paddleX > 0) {
+        paddleX -= paddleSpeed;
+      } else if (e.key === "ArrowRight" && paddleX < 340) {
+        paddleX += paddleSpeed;
+      }
+      paddle.style.left = paddleX + "px";
+    });
+
+    function moveBall() {
+      if (!gameRunning) return;
+
+      ballY += ballSpeed;
+      ballX += ballDirX;
+
+      // bounce off walls
+      if (ballX <= 0 || ballX >= 380) {
+        ballDirX = -ballDirX;
+      }
+
+      // check collision with paddle
+      if (
+        ballY >= 470 &&
+        ballX + 20 > paddleX &&
+        ballX < paddleX + 60
+      ) {
+        score++;
+        ballY = 0;
+        ballX = Math.random() * 380;
+        ballSpeed += 0.2;
+        scoreDisplay.textContent = "Score: " + score;
+      }
+
+      // missed the paddle
+      if (ballY > 500) {
+        gameOver();
+      }
+
+      ball.style.top = ballY + "px";
+      ball.style.left = ballX + "px";
+
+      requestAnimationFrame(moveBall);
+    }
+
+    function gameOver() {
+      gameRunning = false;
+      gameOverScreen.style.display = "block";
+      finalScoreDisplay.textContent = score;
+    }
+
+    function restartGame() {
+      score = 0;
+      ballY = 0;
+      ballX = 200;
+      ballSpeed = 3;
+      gameRunning = true;
+      gameOverScreen.style.display = "none";
+      scoreDisplay.textContent = "Score: 0";
+      moveBall();
+    }
+
+    moveBall();
+  </script>
+</body>
+</html>
